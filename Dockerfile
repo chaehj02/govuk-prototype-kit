@@ -7,8 +7,9 @@ WORKDIR /app
 # package.json과 lock 파일 복사
 COPY package*.json ./
 
-# 의존성 설치 (CI 환경에 최적화된 방식)
-RUN npm ci
+
+RUN npm install
+
 
 # 전체 앱 복사
 COPY . .
