@@ -48,7 +48,7 @@ pipeline {
       \"cpu\": 256,
       \"essential\": true,
       \"portMappings\": [
-        {\"containerPort\": 8080, \"protocol\": \"tcp\"}
+        {\"containerPort\": 3000, \"protocol\": \"tcp\"}
       ]
     }
   ],
@@ -77,7 +77,7 @@ Resources:
         TaskDefinition: \"${taskDefArn}\"
         LoadBalancerInfo:
           ContainerName: \"webgoat\"
-          ContainerPort: 8080
+          ContainerPort: 3000
 """
                     writeFile file: 'appspec.yaml', text: appspec
                 }
