@@ -44,7 +44,15 @@ pipeline {
       \"essential\": true,
       \"portMappings\": [
         {\"containerPort\": 3000, \"protocol\": \"tcp\"}
-      ]
+      ],
+      \"logConfiguration\": {
+        \"logDriver\": \"awslogs\",
+        \"options\": {
+          \"awslogs-group\": \"/ecs/govuk-taskdef\",
+          \"awslogs-region\": \"${REGION}\",
+          \"awslogs-stream-prefix\": \"ecs\"
+        }
+      }
     }
   ],
   \"requiresCompatibilities\": [\"FARGATE\"],
@@ -52,6 +60,7 @@ pipeline {
   \"memory\": \"512\",
   \"executionRoleArn\": \"arn:aws:iam::159773342061:role/ecsTaskExecutionRole\"
 }"""
+
                     writeFile file: 'taskdef.json', text: taskdef
                 }
             }
