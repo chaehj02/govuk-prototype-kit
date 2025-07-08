@@ -10,4 +10,5 @@ RUN npx govuk-prototype-kit create . --version local && npm install
 
 EXPOSE 3000
 
-CMD ["npm", "run", "dev"]
+CMD ["npm", "start"]  # dev → start
+
