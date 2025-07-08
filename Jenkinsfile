@@ -7,12 +7,10 @@ pipeline {
         JAVA_HOME      = "/opt/jdk-23"
         PATH           = "${env.JAVA_HOME}/bin:${env.PATH}"
         REGION         = "ap-northeast-2"
-        DAST_HOST      = "172.31.8.198"
-        SSH_CRED_ID    = "jenkin_sv"
-        S3_BUCKET      = "webgoat-deploy-bucket"
-        DEPLOY_APP     = "webgoat-cd-app"
-        DEPLOY_GROUP   = "webgoat-deployment-group"
-        BUNDLE         = "webgoat-deploy-bundle.zip"
+        S3_BUCKET      = "govuk-deploy-bucket"
+        DEPLOY_APP     = "govuk-cd-app"
+        DEPLOY_GROUP   = "govuk-deployment-group"
+        BUNDLE         = "govuk-deploy-bundle.zip"
     }
 
     stages {
@@ -25,24 +23,21 @@ pipeline {
                 sh "docker build -t ${ECR_REPO}:${IMAGE_TAG} ."
                 sh """
                     aws ecr get-login-password --region ${REGION} \
-                      | docker login --username AWS --password-stdin ${ECR_REPO}
+                    | docker login --username AWS --password-stdin ${ECR_REPO}
                     docker push ${ECR_REPO}:${IMAGE_TAG}
                 """
             }
         }
 
-   
-
-
         stage('🧩 Generate taskdef.json') {
             steps {
                 script {
                     def taskdef = """{
-  \"family\": \"webgoat-taskdef\",
+  \"family\": \"govuk-taskdef\",
   \"networkMode\": \"awsvpc\",
   \"containerDefinitions\": [
     {
-      \"name\": \"webgoat\",
+      \"name\": \"govuk-container\",
       \"image\": \"${ECR_REPO}:${IMAGE_TAG}\",
       \"memory\": 512,
       \"cpu\": 256,
@@ -66,8 +61,8 @@ pipeline {
             steps {
                 script {
                     def taskDefArn = sh(
-                      script: "aws ecs register-task-definition --cli-input-json file://taskdef.json --query 'taskDefinition.taskDefinitionArn' --region ${REGION} --output text",
-                      returnStdout: true
+                        script: "aws ecs register-task-definition --cli-input-json file://taskdef.json --query 'taskDefinition.taskDefinitionArn' --region ${REGION} --output text",
+                        returnStdout: true
                     ).trim()
                     def appspec = """version: 1
 Resources:
@@ -76,7 +71,7 @@ Resources:
       Properties:
         TaskDefinition: \"${taskDefArn}\"
         LoadBalancerInfo:
-          ContainerName: \"webgoat\"
+          ContainerName: \"govuk-container\"
           ContainerPort: 3000
 """
                     writeFile file: 'appspec.yaml', text: appspec
