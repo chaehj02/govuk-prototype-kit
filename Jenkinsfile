@@ -44,15 +44,7 @@ pipeline {
       \"essential\": true,
       \"portMappings\": [
         {\"containerPort\": 3000, \"protocol\": \"tcp\"}
-      ],
-      \"logConfiguration\": {
-        \"logDriver\": \"awslogs\",
-        \"options\": {
-          \"awslogs-group\": \"/ecs/govuk-taskdef\",
-          \"awslogs-region\": \"${REGION}\",
-          \"awslogs-stream-prefix\": \"ecs\"
-        }
-      }
+      ]
     }
   ],
   \"requiresCompatibilities\": [\"FARGATE\"],
@@ -60,7 +52,28 @@ pipeline {
   \"memory\": \"512\",
   \"executionRoleArn\": \"arn:aws:iam::159773342061:role/ecsTaskExecutionRole\"
 }"""
+                    writeFile file: 'taskdef.json', text: taskdef
+                }
+            }
+        }
 
+        stage('📄 Generate appspec.yaml') {
+            steps {
+                script {
+                    def taskDefArn = sh(
+                        script: "aws ecs register-task-definition --cli-input-json file://taskdef.json --query 'taskDefinition.taskDefinitionArn' --region ${REGION} --output text",
+                        returnStdout: true
+                    ).trim()
+                    def appspec = """version: 1
+Resources:
+  - TargetService:
+      Type: AWS::ECS::Service
+      Properties:
+        TaskDefinition: \"${taskDefArn}\"
+        LoadBalancerInfo:
+          ContainerName: \"govuk-container\"
+          ContainerPort: 3000
+"""
                     writeFile file: 'appspec.yaml', text: appspec
                 }
             }
