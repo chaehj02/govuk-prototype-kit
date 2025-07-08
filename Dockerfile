@@ -9,4 +9,12 @@ COPY . .
 
 EXPOSE 3000
 
-CMD ["npm", "run", "start:dev"]
+RUN mkdir /tmp/prototype && \
+    cd /tmp/prototype && \
+    npx govuk-prototype-kit create . --version local && \
+    cd /tmp/prototype && \
+    npm install
+
+WORKDIR /tmp/prototype
+CMD ["npm", "run", "dev"]
+
