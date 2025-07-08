@@ -2,7 +2,7 @@ pipeline {
     agent { label 'master' }
 
     environment {
-        ECR_REPO       = "159773342061.dkr.ecr.ap-northeast-2.amazonaws.com/jenkins-demo"
+        ECR_REPO       = "159773342061.dkr.ecr.ap-northeast-2.amazonaws.com/jenkins-demo2"
         IMAGE_TAG      = "${env.BUILD_NUMBER}"
         JAVA_HOME      = "/opt/jdk-23"
         PATH           = "${env.JAVA_HOME}/bin:${env.PATH}"
